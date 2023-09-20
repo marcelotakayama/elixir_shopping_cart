@@ -6,7 +6,13 @@ defmodule ElixirShoppingCartWeb.Resolvers.Cart do
   end
 
   def get_item(_, %{id: id}, _) do
-    {:ok, Cart.get_item!(id)}
+    case Cart.get_item(id) do
+      {:ok, item} ->
+        {:ok, item}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
   def create_item(item_params, _info) do
