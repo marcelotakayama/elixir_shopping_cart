@@ -5,7 +5,7 @@ defmodule ElixirShoppingCart.Cart.Item do
   schema "items" do
     field :name, :string
     field :description, :string
-    field :term_price, :integer
+    field :term_price, :float
 
     timestamps()
   end

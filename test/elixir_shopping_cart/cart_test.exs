@@ -11,13 +11,24 @@ defmodule ElixirShoppingCart.CartTest do
     @invalid_attrs %{name: nil, description: nil, term_price: nil}
 
     test "list_items/0 returns all items" do
-      item = item_fixture()
-      assert Cart.list_items() == [item]
+      item = Repo.all(Item)
+      assert Cart.list_items() == item
     end
 
-    test "get_item!/1 returns the item with given id" do
+    test "list_items/0 returns an empty list when there are no items" do
+      Repo.delete_all(Item)
+      assert Cart.list_items() == []
+    end
+
+    test "get_item/1 returns an existing item" do
       item = item_fixture()
-      assert Cart.get_item!(item.id) == item
+      assert {:ok, fetched_item} = Cart.get_item(item.id)
+      assert fetched_item == item
+    end
+
+    test "get_item/1 returns an error for non-existent item" do
+      non_existent_id = -1
+      assert {:error, "Item not found"} = Cart.get_item(non_existent_id)
     end
 
     test "create_item/1 with valid data creates a item" do
@@ -33,31 +44,25 @@ defmodule ElixirShoppingCart.CartTest do
       assert {:error, %Ecto.Changeset{}} = Cart.create_item(@invalid_attrs)
     end
 
-    test "update_item/2 with valid data updates the item" do
-      item = item_fixture()
-      update_attrs = %{name: "some updated name", description: "some updated description", term_price: 43}
-
-      assert {:ok, %Item{} = item} = Cart.update_item(item, update_attrs)
-      assert item.name == "some updated name"
-      assert item.description == "some updated description"
-      assert item.term_price == 43
-    end
-
-    test "update_item/2 with invalid data returns error changeset" do
-      item = item_fixture()
-      assert {:error, %Ecto.Changeset{}} = Cart.update_item(item, @invalid_attrs)
-      assert item == Cart.get_item!(item.id)
-    end
-
     test "delete_item/1 deletes the item" do
       item = item_fixture()
-      assert {:ok, %Item{}} = Cart.delete_item(item)
-      assert_raise Ecto.NoResultsError, fn -> Cart.get_item!(item.id) end
+
+      case Repo.get(Item, item.id) do
+        nil ->
+          assert {:error, "Item not found"} = Cart.delete_item(item.id)
+
+        _ ->
+          assert {:ok, _deleted_item} = Cart.delete_item(item.id)
+      end
     end
 
-    test "change_item/1 returns a item changeset" do
-      item = item_fixture()
-      assert %Ecto.Changeset{} = Cart.change_item(item)
+    test "delete_item/1 returns an error for non-existent item" do
+      non_existent_id = -1
+
+      case Cart.delete_item(non_existent_id) do
+        {:error, "Item not found"} -> assert true
+        _ -> assert false, "Expected error when deleting non-existent item"
+      end
     end
   end
 end

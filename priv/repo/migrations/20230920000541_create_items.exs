@@ -5,7 +5,7 @@ defmodule ElixirShoppingCart.Repo.Migrations.CreateItems do
     create table(:items) do
       add :name, :string
       add :description, :string
-      add :term_price, :integer
+      add :term_price, :float
 
       timestamps()
     end

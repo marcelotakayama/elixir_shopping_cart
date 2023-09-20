@@ -5,9 +5,11 @@ defmodule ElixirShoppingCartWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", ElixirShoppingCartWeb do
-    pipe_through :api
-  end
+  forward "/api", Absinthe.Plug,
+    schema: ElixirShoppingCart.Schema.Schema
+
+  forward "/graphiql", Absinthe.Plug.GraphiQL,
+    schema: ElixirShoppingCartWeb.Schema.Schema
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:elixir_shopping_cart, :dev_routes) do

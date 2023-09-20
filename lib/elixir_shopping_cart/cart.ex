@@ -17,28 +17,31 @@ defmodule ElixirShoppingCart.Cart do
       [%Item{}, ...]
 
   """
-  def list_items do
+  def list_items() do
     Repo.all(Item)
   end
 
   @doc """
-  Gets a single item.
-
-  Raises `Ecto.NoResultsError` if the Item does not exist.
+  Returns an item by the id.
 
   ## Examples
 
-      iex> get_item!(123)
-      %Item{}
-
-      iex> get_item!(456)
-      ** (Ecto.NoResultsError)
+      iex> get_item(id)
+      [%Item{}, ...]
 
   """
-  def get_item!(id), do: Repo.get!(Item, id)
+  def get_item(id) do
+    case Repo.get(Item, id) do
+      nil ->
+        {:error, "Item not found"}
+
+      item ->
+        {:ok, item}
+    end
+  end
 
   @doc """
-  Creates a item.
+  Creates an item.
 
   ## Examples
 
@@ -49,28 +52,9 @@ defmodule ElixirShoppingCart.Cart do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_item(attrs \\ %{}) do
-    %Item{}
-    |> Item.changeset(attrs)
+  def create_item(params) do
+    Item.changeset(%Item{}, params)
     |> Repo.insert()
-  end
-
-  @doc """
-  Updates a item.
-
-  ## Examples
-
-      iex> update_item(item, %{field: new_value})
-      {:ok, %Item{}}
-
-      iex> update_item(item, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_item(%Item{} = item, attrs) do
-    item
-    |> Item.changeset(attrs)
-    |> Repo.update()
   end
 
   @doc """
@@ -85,20 +69,15 @@ defmodule ElixirShoppingCart.Cart do
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_item(%Item{} = item) do
-    Repo.delete(item)
-  end
 
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking item changes.
+  def delete_item(id) do
+    case get_item(id) do
+      {:ok, item} ->
+        Repo.delete(item)
+        {:ok, item}
 
-  ## Examples
-
-      iex> change_item(item)
-      %Ecto.Changeset{data: %Item{}}
-
-  """
-  def change_item(%Item{} = item, attrs \\ %{}) do
-    Item.changeset(item, attrs)
+      {:error, _reason} ->
+        {:error, "Item not found"}
+    end
   end
 end
