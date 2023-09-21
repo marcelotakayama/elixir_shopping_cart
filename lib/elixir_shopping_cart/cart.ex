@@ -52,8 +52,9 @@ defmodule ElixirShoppingCart.Cart do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_item(params) do
-    Item.changeset(%Item{}, params)
+  def create_item(item_params) do
+    %Item{}
+    |> Item.changeset(item_params)
     |> Repo.insert()
   end
 

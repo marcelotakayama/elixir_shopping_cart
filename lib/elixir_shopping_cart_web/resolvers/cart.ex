@@ -15,11 +15,10 @@ defmodule ElixirShoppingCartWeb.Resolvers.Cart do
     end
   end
 
-  def create_item(item_params, _info) do
-    with {:ok, item} <- Cart.create_item(item_params) do
-      {:ok, item}
-    else
-      {:error, _error} -> {:error, "Failed to create item"}
+  def create_item(item_params, _) do
+    case Cart.create_item(item_params) do
+      {:ok, item} -> {:ok, item}
+      {:error, reason} -> {:error, reason}
     end
   end
 
